@@ -1,0 +1,58 @@
+{
+  "name": "endicia",
+  "version": "1.0.0",
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon -e js,json,ts  --exec ./node_modules/.bin/ts-node src",
+    "build": "tsc",
+    "docs": "typedoc --theme minimal --hideGenerator --name Endicia --out ./docs src",
+    "prepublish": "npm run build",
+    "release": "np"
+  },
+  "engines": {
+    "node": ">=8.9.1"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "shortid": "^2.2.8",
+    "xml2js": "^0.4.19",
+    "xmlbuilder": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^22.2.3",
+    "@types/request": "^2.47.0",
+    "@types/request-promise": "^4.1.41",
+    "@types/shortid": "^0.0.29",
+    "@types/xml2js": "^0.4.2",
+    "@types/xmlbuilder": "^0.0.32",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "jest": "^22.4.4",
+    "nodemon": "^1.17.5",
+    "np": "^3.0.1",
+    "ts-jest": "^22.4.6",
+    "ts-loader": "^4.3.0",
+    "ts-node": "^6.0.3",
+    "typedoc": "^0.11.1",
+    "typescript": "^2.8.3",
+    "typescript-eslint-parser": "^16.0.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/test/.*\\.spec\\.ts$"
+  }
+}

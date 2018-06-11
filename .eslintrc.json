@@ -1,0 +1,29 @@
+{
+    "extends": ["airbnb-base", "prettier"],
+    "rules": {
+      "no-param-reassign": [2, {"props": false}],
+      "no-underscore-dangle": 0,
+      "no-unused-vars": 0,
+      "import/extensions": "never",
+      "import/prefer-default-export": 0,
+      "no-restricted-globals":"off"
+    },
+    "parser": "typescript-eslint-parser",
+    "plugins": [],
+    "settings": {
+        "import/resolver": {
+          "node": {
+            "extensions": [".js",".ts"]
+          }
+        }
+    },
+    "overrides": [
+      {
+        "files": ["**/*.ts"],
+        "parser": "typescript-eslint-parser",
+        "rules": {
+          "no-undef": "off"
+        }
+      }
+    ]
+}
