@@ -1,7 +1,7 @@
 import * as xmlbuilder from 'xmlbuilder';
 import { RequestAPI } from 'request';
 export declare enum EndiciaEndpoints {
-    test = "https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx/",
+    test = "https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx",
     live = "https://labelserver.endicia.com/LabelService/EwsLabelService.asmx"
 }
 export declare type EndiciaMailClassType = 'PriorityExpress' | 'First' | 'LibraryMail' | 'MediaMail' | 'ParcelSelect' | 'RetailGround' | 'Priority' | 'PriorityMailExpressInternational' | 'FirstClassMailInternational' | 'FirstClassPackageInternationalService' | 'PriorityMailInternational';
@@ -44,7 +44,7 @@ export interface PostageLabelOption {
     weight: number;
     mailPieceShape: string;
     showReturnAddress?: boolean;
-    orderRefernence?: string;
+    orderReference?: string;
     customerReference?: string;
 }
 export interface ShipRateOption {
