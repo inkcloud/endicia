@@ -118,7 +118,17 @@ export default class Endicia {
     .ele('RecreditAmount', amount)
     .end({ pretty: true });
 
-    return this.request('/BuyPostageXML?recreditRequestXML=' + xml);
+    const response = this.request('/BuyPostageXML?recreditRequestXML=' + xml);
+
+    return new Promise((resolve, reject) => {
+      parseString(response, { explicitArray: false }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
   }
 
   async rateSingle(data: ShipRateOption) {
@@ -205,6 +215,16 @@ export default class Endicia {
     .ele('NewPassPhrase', newPassPhrase)
     .end({ pretty: true });
 
-    return this.request('/ChangePassPhraseXML?changePassPhraseRequestXML=' + xml);
+    const response = this.request('/ChangePassPhraseXML?changePassPhraseRequestXML=' + xml);
+
+    return new Promise((resolve, reject) => {
+      parseString(response, { explicitArray: false }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
   }
 }

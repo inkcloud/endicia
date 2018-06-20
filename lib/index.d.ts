@@ -1,3 +1,5 @@
+import * as xmlbuilder from 'xmlbuilder';
+import { RequestAPI } from 'request';
 export declare type EndiciaMailClassType = 'PriorityExpress' | 'First' | 'LibraryMail' | 'MediaMail' | 'ParcelSelect' | 'RetailGround' | 'Priority' | 'PriorityMailExpressInternational' | 'FirstClassMailInternational' | 'FirstClassPackageInternationalService' | 'PriorityMailInternational';
 export declare enum EndiciaEndpoints {
     test = "https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx",
@@ -51,4 +53,18 @@ export interface ShipRateOption {
     mailClass: string;
     weight: number;
     mailPieceShape: string;
+}
+export default class Endicia {
+    options: EndiciaOptions;
+    request: RequestAPI<any, any, any>;
+    mode: string;
+    accountId: number;
+    passPhrase: string;
+    requesterId: string;
+    constructor(options: EndiciaOptions);
+    getBase(root: string, credsInCertifiedIntermediary?: boolean): xmlbuilder.XMLElementOrXMLNode;
+    buyPostage(amount: number): Promise<{}>;
+    rateSingle(data: ShipRateOption): Promise<{}>;
+    getPostageLabel(data: PostageLabelOption): Promise<{}>;
+    changePassword(newPassPhrase: string): Promise<{}>;
 }
