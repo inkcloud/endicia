@@ -46,6 +46,8 @@ export interface PostageLabelOption {
     showReturnAddress?: boolean;
     orderReference?: string;
     customerReference?: string;
+    imageRotation?: string;
+    labelSize?: string;
 }
 export interface ShipRateOption {
     shipToPostalCode: string;
