@@ -68,6 +68,10 @@ export interface PostageLabelOption {
   customerReference?: string;
   imageRotation?: string;
   labelSize?: string;
+  fileType?: string;
+  imageResolution?: string;
+  labelType?: string;
+  labelSubtype?: string;
 }
 
 export interface ShipRateOption {
@@ -163,14 +167,16 @@ export default class Endicia {
 
     const imageRotation = data.imageRotation || 'NONE';
     const labelSize = data.labelSize || '4x6';
+    const labelType = data.labelSize || 'Default';
+    const labelSubtype = data.labelSize || 'None';
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
     .att('LabelType', 'Default')
     .att('LabelSubtype', 'None')
     .att('LabelSize', labelSize)
-    .att('ImageFormat', 'PNG')
-    .att('ImageResolution', '300')
+    .att('ImageFormat', data.fileType || 'PNG')
+    .att('ImageResolution', data.imageResolution || '300')
     .att('ImageRotation', imageRotation)
     .ele('MailClass', data.mailClass).up()
     .ele('WeightOz', data.weight).up()

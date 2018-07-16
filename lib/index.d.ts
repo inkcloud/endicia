@@ -48,6 +48,10 @@ export interface PostageLabelOption {
     customerReference?: string;
     imageRotation?: string;
     labelSize?: string;
+    fileType?: string;
+    imageResolution?: string;
+    labelType?: string;
+    labelSubtype?: string;
 }
 export interface ShipRateOption {
     shipToPostalCode: string;
