@@ -72,5 +72,6 @@ export default class Endicia {
     buyPostage(amount: number): Promise<{}>;
     rateSingle(data: ShipRateOption): Promise<{}>;
     getPostageLabel(data: PostageLabelOption): Promise<{}>;
+    refundLabel(trackingNumber: string): Promise<{}>;
     changePassword(newPassPhrase: string): Promise<{}>;
 }

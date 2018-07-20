@@ -124,7 +124,7 @@ export default class Endicia {
     .ele('RecreditAmount', amount)
     .end({ pretty: true });
 
-    const response = this.request('/BuyPostageXML?recreditRequestXML=' + xml);
+    const response = await this.request('/BuyPostageXML?recreditRequestXML=' + xml);
 
     return new Promise((resolve, reject) => {
       parseString(response, { explicitArray: false }, (err, data) => {
@@ -162,22 +162,16 @@ export default class Endicia {
     if (!data.shipFrom && (!this.options.label || !this.options.label.shipFrom)) {
       throw Error('Ship From must be included');
     }
-
     const shipFrom = data.shipFrom || this.options.label.shipFrom;
-
-    const imageRotation = data.imageRotation || 'NONE';
-    const labelSize = data.labelSize || '4x6';
-    const labelType = data.labelSize || 'Default';
-    const labelSubtype = data.labelSize || 'None';
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
-    .att('LabelType', 'Default')
-    .att('LabelSubtype', 'None')
-    .att('LabelSize', labelSize)
+    .att('LabelType', data.labelType || 'Default')
+    .att('LabelSubtype', data.labelSubtype || 'None')
+    .att('LabelSize', data.labelSize || '4x6')
     .att('ImageFormat', data.fileType || 'PNG')
     .att('ImageResolution', data.imageResolution || '300')
-    .att('ImageRotation', imageRotation)
+    .att('ImageRotation', data.imageRotation || 'NONE')
     .ele('MailClass', data.mailClass).up()
     .ele('WeightOz', data.weight).up()
     .ele('MailpieceShape', data.mailPieceShape).up()
@@ -216,6 +210,25 @@ export default class Endicia {
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });
+        }
+      });
+    });
+  }
+
+  async refundLabel(trackingNumber: string) {
+    const xml = this.getBase('RefundRequest')
+    .ele('PicNumbers')
+    .ele('PicNumber', trackingNumber).up()
+    .end({ pretty: true });
+
+    const response = await this.request('/GetRefundXML?refundRequestXML=' + xml);
+
+    return new Promise((resolve, reject) => {
+      parseString(response, { explicitArray: false }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
         }
       });
     });
