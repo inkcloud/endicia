@@ -35,6 +35,7 @@ export interface ShippingAddress {
     city: string;
     stateProvince: string;
     postalCode: string;
+    countryCode: string;
     phone?: string;
 }
 export interface PostageLabelOption {
@@ -42,6 +43,7 @@ export interface PostageLabelOption {
     shipFrom?: ShippingAddress;
     mailClass: EndiciaMailClassType;
     weight: number;
+    totalPrice: number;
     mailPieceShape: string;
     showReturnAddress?: boolean;
     orderReference?: string;

@@ -54,6 +54,7 @@ export interface ShippingAddress {
   city: string;
   stateProvince: string;
   postalCode: string;
+  countryCode: string;
   phone?: string;
 }
 
@@ -62,6 +63,7 @@ export interface PostageLabelOption {
   shipFrom?: ShippingAddress,
   mailClass: EndiciaMailClassType;
   weight: number;
+  totalPrice: number;
   mailPieceShape: string;
   showReturnAddress?: boolean;
   orderReference?: string;
@@ -163,14 +165,15 @@ export default class Endicia {
       throw Error('Ship From must be included');
     }
     const shipFrom = data.shipFrom || this.options.label.shipFrom;
+    const isInternational = data.labelType === 'International';
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
     .att('LabelType', data.labelType || 'Default')
     .att('LabelSubtype', data.labelSubtype || 'None')
     .att('LabelSize', data.labelSize || '4x6')
-    .att('ImageFormat', data.fileType || 'PNG')
-    .att('ImageResolution', data.imageResolution || '300')
+    .att('ImageFormat', data.fileType || 'EPL2')
+    .att('ImageResolution', data.imageResolution || '203')
     .att('ImageRotation', data.imageRotation || 'NONE')
     .ele('MailClass', data.mailClass).up()
     .ele('WeightOz', data.weight).up()
@@ -180,7 +183,7 @@ export default class Endicia {
     .ele('PartnerCustomerID', data.customerReference || shortid.generate()).up()
 
     .ele('FromCompany', shipFrom.name).up()
-    // .ele('FromPhone', shipFrom.phone).up()
+    .ele('FromPhone', shipFrom.phone).up()
     .ele('ReturnAddress1', shipFrom.address1).up()
     .ele('FromCity', shipFrom.city).up()
     .ele('FromState', shipFrom.stateProvince).up()
@@ -191,8 +194,25 @@ export default class Endicia {
     .ele('ToAddress2', data.shipTo.address2).up()
     .ele('ToCity', data.shipTo.city).up()
     .ele('ToState', data.shipTo.stateProvince).up()
-    .ele('ToPostalCode', data.shipTo.postalCode).up()
-    .end({ pretty: true });
+    .ele('ToPostalCode', data.shipTo.postalCode).up();
+
+    if (isInternational) {
+      xml
+      .ele('ToCountryCode', data.shipTo.countryCode).up()
+      .ele('CustomsInfo')
+      .ele('ContentsType', 'Merchandise').up()
+      .ele('CustomsItems')
+      .ele('CustomsItem')
+      .ele('Description', 'vitamins').up()
+      .ele('Quantity', 1).up()
+      .ele('Weight', data.weight).up()
+      .ele('Value', data.totalPrice).up()
+      .end({ pretty: true });
+    } else {
+      xml
+      .ele('ToCountryCode', 'US').up()
+      .end({ pretty: true });
+    }
 
     const response = await this.request('/GetPostageLabelXML?labelRequestXML=' + xml);
 
@@ -206,7 +226,7 @@ export default class Endicia {
           }
 
           return resolve({
-            base64LabelImage: lr.Base64LabelImage,
+            base64LabelImage: isInternational ? lr.Label.Image._ : lr.Base64LabelImage,
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });
