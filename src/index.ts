@@ -63,7 +63,6 @@ export interface PostageLabelOption {
   shipFrom?: ShippingAddress,
   mailClass: EndiciaMailClassType;
   requireCustomForm: boolean;
-  isInternational: boolean;
   weight: number;
   totalPrice: number;
   mailPieceShape: string;
@@ -170,8 +169,8 @@ export default class Endicia {
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
-    .att('LabelType', data.labelType || (data.isInternational && data.requireCustomForm) ? 'International' : 'Default')
-    .att('LabelSubtype', data.labelSubtype || (data.isInternational && data.requireCustomForm) ? 'Integrated' : 'None')
+    .att('LabelType', data.labelType || 'Default')
+    .att('LabelSubtype', data.labelSubtype || 'None')
     .att('LabelSize', data.labelSize || '4x6')
     .att('ImageFormat', data.fileType || 'EPL2')
     .att('ImageResolution', data.imageResolution || '203')
