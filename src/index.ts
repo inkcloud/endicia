@@ -189,12 +189,12 @@ export default class Endicia {
     .ele('FromState', shipFrom.stateProvince).up()
     .ele('FromPostalCode', shipFrom.postalCode).up()
 
-    .ele('ToName', data.shipTo.name).up()
-    .ele('ToAddress1', data.shipTo.address1).up()
-    .ele('ToAddress2', data.shipTo.address2).up()
-    .ele('ToCity', data.shipTo.city).up()
-    .ele('ToState', data.shipTo.stateProvince).up()
-    .ele('ToPostalCode', data.shipTo.postalCode).up();
+    .ele('ToName', data.shipTo.name.replace(/#/g, '')).up()
+    .ele('ToAddress1', data.shipTo.address1.replace(/#/g, '')).up()
+    .ele('ToAddress2', data.shipTo.address2.replace(/#/g, '')).up()
+    .ele('ToCity', data.shipTo.city.replace(/#/g, '')).up()
+    .ele('ToState', data.shipTo.stateProvince.replace(/#/g, '')).up()
+    .ele('ToPostalCode', data.shipTo.postalCode.replace(/#/g, '')).up();
 
     if (data.requireCustomForm) {
       xml
