@@ -62,6 +62,8 @@ export interface PostageLabelOption {
   shipTo: ShippingAddress,
   shipFrom?: ShippingAddress,
   mailClass: EndiciaMailClassType;
+  requireCustomForm: boolean;
+  isInternational: boolean;
   weight: number;
   totalPrice: number;
   mailPieceShape: string;
@@ -165,12 +167,11 @@ export default class Endicia {
       throw Error('Ship From must be included');
     }
     const shipFrom = data.shipFrom || this.options.label.shipFrom;
-    const isInternational = data.labelType === 'International';
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
-    .att('LabelType', data.labelType || 'Default')
-    .att('LabelSubtype', data.labelSubtype || 'None')
+    .att('LabelType', data.labelType || (data.isInternational && data.requireCustomForm) ? 'International' : 'Default')
+    .att('LabelSubtype', data.labelSubtype || (data.isInternational && data.requireCustomForm) ? 'Integrated' : 'None')
     .att('LabelSize', data.labelSize || '4x6')
     .att('ImageFormat', data.fileType || 'EPL2')
     .att('ImageResolution', data.imageResolution || '203')
@@ -196,7 +197,7 @@ export default class Endicia {
     .ele('ToState', data.shipTo.stateProvince).up()
     .ele('ToPostalCode', data.shipTo.postalCode).up();
 
-    if (isInternational) {
+    if (data.requireCustomForm) {
       xml
       .ele('ToCountryCode', data.shipTo.countryCode).up()
       .ele('CustomsInfo')
@@ -226,7 +227,7 @@ export default class Endicia {
           }
 
           return resolve({
-            base64LabelImage: isInternational ? lr.Label.Image._ : lr.Base64LabelImage,
+            base64LabelImage: data.requireCustomForm ? lr.Label.Image._ : lr.Base64LabelImage,
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });

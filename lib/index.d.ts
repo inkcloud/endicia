@@ -42,6 +42,8 @@ export interface PostageLabelOption {
     shipTo: ShippingAddress;
     shipFrom?: ShippingAddress;
     mailClass: EndiciaMailClassType;
+    requireCustomForm: boolean;
+    isInternational: boolean;
     weight: number;
     totalPrice: number;
     mailPieceShape: string;
