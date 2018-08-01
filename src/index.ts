@@ -166,6 +166,7 @@ export default class Endicia {
       throw Error('Ship From must be included');
     }
     const shipFrom = data.shipFrom || this.options.label.shipFrom;
+    const { requireCustomForm } = data;
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
@@ -196,7 +197,7 @@ export default class Endicia {
     .ele('ToState', data.shipTo.stateProvince.replace(/#/g, '')).up()
     .ele('ToPostalCode', data.shipTo.postalCode.replace(/#/g, '')).up();
 
-    if (data.requireCustomForm) {
+    if (requireCustomForm) {
       xml
       .ele('ToCountryCode', data.shipTo.countryCode).up()
       .ele('CustomsInfo')
@@ -226,7 +227,7 @@ export default class Endicia {
           }
 
           return resolve({
-            base64LabelImage: data.requireCustomForm ? lr.Label.Image._ : lr.Base64LabelImage,
+            base64LabelImage: requireCustomForm ? lr.Label.Image._ : lr.Base64LabelImage,
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });
