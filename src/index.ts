@@ -85,6 +85,10 @@ export interface ShipRateOption {
   mailPieceShape: string;
 }
 
+function removeIllegalSymbols(str) {
+  return String(str).replace(/#/g, '').replace(/’/g, '`');
+}
+
 export default class Endicia {
   options: EndiciaOptions;
   request: RequestAPI<any, any, any>;
@@ -190,15 +194,15 @@ export default class Endicia {
     .ele('FromState', shipFrom.stateProvince).up()
     .ele('FromPostalCode', shipFrom.postalCode).up()
 
-    .ele('ToName', data.shipTo.name.replace(/#/g, '')).up()
-    .ele('ToAddress1', data.shipTo.address1.replace(/#/g, '')).up()
-    .ele('ToAddress2', data.shipTo.address2.replace(/#/g, '')).up()
-    .ele('ToCity', data.shipTo.city.replace(/#/g, '')).up()
-    .ele('ToState', data.shipTo.stateProvince.replace(/#/g, '')).up()
-    .ele('ToPostalCode', String(data.shipTo.postalCode).split('-')[0].replace(/#/g, '')).up();
+    .ele('ToName', removeIllegalSymbols(data.shipTo.name)).up()
+    .ele('ToAddress1', removeIllegalSymbols(data.shipTo.address1)).up()
+    .ele('ToAddress2', removeIllegalSymbols(data.shipTo.address2)).up()
+    .ele('ToCity', removeIllegalSymbols(data.shipTo.city)).up()
+    .ele('ToState', removeIllegalSymbols(data.shipTo.stateProvince)).up()
+    .ele('ToPostalCode', removeIllegalSymbols(data.shipTo.postalCode).split('-')[0]).up();
 
-    if (String(data.shipTo.postalCode).split('-')[1] && requireCustomForm) {
-      xml.ele('ToZIP4', String(data.shipTo.postalCode).split('-')[1].replace(/#/g, '')).up();
+    if (removeIllegalSymbols(data.shipTo.postalCode).split('-')[1] && requireCustomForm) {
+      xml.ele('ToZIP4', removeIllegalSymbols(data.shipTo.postalCode).split('-')[1]).up();
     }
 
     if (requireCustomForm) {
