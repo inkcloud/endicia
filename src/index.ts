@@ -59,6 +59,7 @@ export interface ShippingAddress {
 }
 
 export interface PostageLabelOption {
+  replyPostage?: boolean,
   shipTo: ShippingAddress,
   shipFrom?: ShippingAddress,
   mailClass: EndiciaMailClassType;
@@ -180,6 +181,7 @@ export default class Endicia {
     .att('ImageFormat', data.fileType || 'EPL2')
     .att('ImageResolution', data.imageResolution || '203')
     .att('ImageRotation', data.imageRotation || 'NONE')
+    .ele('ReplyPostage', Boolean(data.replyPostage)).up()
     .ele('MailClass', data.mailClass).up()
     .ele('WeightOz', data.weight).up()
     .ele('MailpieceShape', data.mailPieceShape).up()

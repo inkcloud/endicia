@@ -39,6 +39,7 @@ export interface ShippingAddress {
     phone?: string;
 }
 export interface PostageLabelOption {
+    replyPostage?: boolean;
     shipTo: ShippingAddress;
     shipFrom?: ShippingAddress;
     mailClass: EndiciaMailClassType;
