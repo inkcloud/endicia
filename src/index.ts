@@ -63,9 +63,9 @@ export interface PostageLabelOption {
   shipTo: ShippingAddress,
   shipFrom?: ShippingAddress,
   mailClass: EndiciaMailClassType;
-  requireCustomForm: boolean;
+  isInternational: boolean;
   weight: number;
-  totalPrice: number;
+  orderItems: any[];
   mailPieceShape: string;
   showReturnAddress?: boolean;
   orderReference?: string;
@@ -87,7 +87,7 @@ export interface ShipRateOption {
 }
 
 function removeIllegalSymbols(str) {
-  return String(str).replace(/#/g, '').replace(/’/g, '`');
+  return String(str).trim().replace(/#/g, '').replace(/’/g, '`');
 }
 
 export default class Endicia {
@@ -171,7 +171,7 @@ export default class Endicia {
       throw Error('Ship From must be included');
     }
     const shipFrom = data.shipFrom || this.options.label.shipFrom;
-    const { requireCustomForm } = data;
+    const { isInternational } = data;
 
     const xml = this.getBase('LabelRequest', false)
     .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
@@ -201,28 +201,33 @@ export default class Endicia {
     .ele('ToAddress2', removeIllegalSymbols(data.shipTo.address2)).up()
     .ele('ToCity', removeIllegalSymbols(data.shipTo.city)).up()
     .ele('ToState', removeIllegalSymbols(data.shipTo.stateProvince)).up()
-    .ele('ToPostalCode', removeIllegalSymbols(data.shipTo.postalCode).split('-')[0]).up();
+    .ele('ToPostalCode', !isInternational ? removeIllegalSymbols(data.shipTo.postalCode).split('-')[0] : removeIllegalSymbols(data.shipTo.postalCode)).up();
 
-    if (removeIllegalSymbols(data.shipTo.postalCode).split('-')[1] && requireCustomForm) {
+    if (!isInternational && removeIllegalSymbols(data.shipTo.postalCode).split('-')[1]) {
       xml.ele('ToZIP4', removeIllegalSymbols(data.shipTo.postalCode).split('-')[1]).up();
     }
 
-    if (requireCustomForm) {
-      xml
-      .ele('ToCountryCode', data.shipTo.countryCode).up()
-      .ele('CustomsInfo')
-      .ele('ContentsType', 'Merchandise').up()
-      .ele('CustomsItems')
-      .ele('CustomsItem')
-      .ele('Description', 'vitamins').up()
-      .ele('Quantity', 1).up()
-      .ele('Weight', data.weight).up()
-      .ele('Value', data.totalPrice).up()
-      .end({ pretty: true });
+    if (isInternational && Array.isArray(data.orderItems)) {
+      const customsItems = xml
+        .ele('ToCountryCode', data.shipTo.countryCode).up()
+        .ele('CustomsInfo')
+        .ele('ContentsType', 'Merchandise').up()
+        .ele('CustomsItems');
+
+      for (const item of data.orderItems) {
+        customsItems
+          .ele('CustomsItem')
+          .ele('Description', item.description).up()
+          .ele('Quantity', item.quantity).up()
+          .ele('Weight', item.weight).up()
+          .ele('Value', item.itemPrice).up();
+      }
+
+      xml.end({ pretty: true });
     } else {
       xml
-      .ele('ToCountryCode', 'US').up()
-      .end({ pretty: true });
+        .ele('ToCountryCode', 'US').up()
+        .end({ pretty: true });
     }
 
     const response = await this.request('/GetPostageLabelXML?labelRequestXML=' + xml);
@@ -237,7 +242,7 @@ export default class Endicia {
           }
 
           return resolve({
-            base64LabelImage: requireCustomForm ? lr.Label.Image._ : lr.Base64LabelImage,
+            base64LabelImage: isInternational ? lr.Label.Image._ : lr.Base64LabelImage,
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });
