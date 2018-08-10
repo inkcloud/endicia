@@ -230,7 +230,14 @@ export default class Endicia {
         .end({ pretty: true });
     }
 
-    const response = await this.request('/GetPostageLabelXML?labelRequestXML=' + xml);
+    const response = await this.request({
+      body: `labelRequestXML=${xml}`,
+      method: 'POST',
+      uri: '/GetPostageLabelXML?labelRequestXML',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
 
     return new Promise((resolve, reject) => {
       parseString(response, { explicitArray: false }, (err, data) => {
