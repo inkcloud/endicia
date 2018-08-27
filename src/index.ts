@@ -184,7 +184,7 @@ export default class Endicia {
     .ele('ReplyPostage', Boolean(data.replyPostage)).up()
     .ele('MailClass', data.mailClass || isInternational ? 'FirstClassMailInternational' : data.weight >= 16 ? 'Priority' : 'First').up()
     .ele('WeightOz', data.weight).up()
-    .ele('MailpieceShape', data.mailPieceShape).up()
+    .ele('MailpieceShape', data.mailPieceShape || 'Parcel').up()
     .ele('ShowReturnAddress', data.showReturnAddress || 'TRUE').up()
     .ele('PartnerTransactionID', data.orderReference || shortid.generate()).up()
     .ele('PartnerCustomerID', data.customerReference || shortid.generate()).up()
