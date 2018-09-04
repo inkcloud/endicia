@@ -252,7 +252,7 @@ export default class Endicia {
 
           let base64LabelImage = lr.Base64LabelImage;
 
-          if (isInternational) {
+          if (isInternational && Array.isArray(lr.Label.Image)) {
             base64LabelImage = lr.Label.Image
               .sort((a, b) => {
                 if (a.$ && b.$ && a.$.PartNumber > b.$.PartNumber) {
@@ -266,6 +266,8 @@ export default class Endicia {
                 a += c._;
                 return a;
             }, '');
+          } else if (isInternational) {
+            base64LabelImage = lr.Label.Image._;
           }
 
           return resolve({
