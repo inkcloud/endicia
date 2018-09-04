@@ -174,36 +174,36 @@ export default class Endicia {
     const { isInternational } = data;
 
     const xml = this.getBase('LabelRequest', false)
-    .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
-    .att('LabelType', data.labelType || isInternational ? 'International' : 'Default')
-    .att('LabelSubtype', data.labelSubtype || isInternational ? 'Integrated' : 'None')
-    .att('LabelSize', data.labelSize || '4x6')
-    .att('ImageFormat', data.fileType || 'EPL2')
-    .att('ImageResolution', data.imageResolution || 203)
-    .att('ImageRotation', data.imageRotation || 'NONE')
-    .ele('ReplyPostage', Boolean(data.replyPostage)).up()
-    .ele('MailClass', data.mailClass || isInternational ?
-          data.weight >= 64 ? 'PriorityMailInternational' : 'FirstClassMailInternational' :
-          data.weight >= 16 ? 'Priority' : 'First').up()
-    .ele('WeightOz', data.weight).up()
-    .ele('MailpieceShape', data.mailPieceShape || 'Parcel').up()
-    .ele('ShowReturnAddress', data.showReturnAddress || 'TRUE').up()
-    .ele('PartnerTransactionID', data.orderReference || shortid.generate()).up()
-    .ele('PartnerCustomerID', data.customerReference || shortid.generate()).up()
+      .att('Test', this.mode !== 'live' ? 'YES' : 'NO')
+      .att('LabelType', data.labelType || isInternational ? 'International' : 'Default')
+      .att('LabelSubtype', data.labelSubtype || isInternational ? 'Integrated' : 'None')
+      .att('LabelSize', data.labelSize || '4x6')
+      .att('ImageFormat', data.fileType || 'EPL2')
+      .att('ImageResolution', data.imageResolution || 203)
+      .att('ImageRotation', data.imageRotation || 'NONE')
+      .ele('ReplyPostage', Boolean(data.replyPostage)).up()
+      .ele('MailClass', data.mailClass || isInternational ?
+        data.weight >= 64 ? 'PriorityMailInternational' : 'FirstClassMailInternational' :
+        data.weight >= 16 ? 'Priority' : 'First').up()
+      .ele('WeightOz', data.weight).up()
+      .ele('MailpieceShape', data.mailPieceShape || 'Parcel').up()
+      .ele('ShowReturnAddress', data.showReturnAddress || 'TRUE').up()
+      .ele('PartnerTransactionID', data.orderReference || shortid.generate()).up()
+      .ele('PartnerCustomerID', data.customerReference || shortid.generate()).up()
 
-    .ele('FromCompany', shipFrom.name).up()
-    .ele('FromPhone', shipFrom.phone).up()
-    .ele('ReturnAddress1', shipFrom.address1).up()
-    .ele('FromCity', shipFrom.city).up()
-    .ele('FromState', shipFrom.stateProvince).up()
-    .ele('FromPostalCode', shipFrom.postalCode).up()
+      .ele('FromCompany', shipFrom.name).up()
+      .ele('FromPhone', shipFrom.phone).up()
+      .ele('ReturnAddress1', shipFrom.address1).up()
+      .ele('FromCity', shipFrom.city).up()
+      .ele('FromState', shipFrom.stateProvince).up()
+      .ele('FromPostalCode', shipFrom.postalCode).up()
 
-    .ele('ToName', removeIllegalSymbols(data.shipTo.name)).up()
-    .ele('ToAddress1', removeIllegalSymbols(data.shipTo.address1)).up()
-    .ele('ToAddress2', removeIllegalSymbols(data.shipTo.address2)).up()
-    .ele('ToCity', removeIllegalSymbols(data.shipTo.city)).up()
-    .ele('ToState', removeIllegalSymbols(data.shipTo.stateProvince)).up()
-    .ele('ToPostalCode', !isInternational ? removeIllegalSymbols(data.shipTo.postalCode).split('-')[0] : removeIllegalSymbols(data.shipTo.postalCode)).up();
+      .ele('ToName', removeIllegalSymbols(data.shipTo.name)).up()
+      .ele('ToAddress1', removeIllegalSymbols(data.shipTo.address1)).up()
+      .ele('ToAddress2', removeIllegalSymbols(data.shipTo.address2)).up()
+      .ele('ToCity', removeIllegalSymbols(data.shipTo.city)).up()
+      .ele('ToState', removeIllegalSymbols(data.shipTo.stateProvince)).up()
+      .ele('ToPostalCode', !isInternational ? removeIllegalSymbols(data.shipTo.postalCode).split('-')[0] : removeIllegalSymbols(data.shipTo.postalCode)).up();
 
     if (!isInternational && removeIllegalSymbols(data.shipTo.postalCode).split('-')[1]) {
       xml.ele('ToZIP4', removeIllegalSymbols(data.shipTo.postalCode).split('-')[1]).up();
@@ -250,8 +250,26 @@ export default class Endicia {
             return reject(new Error(lr.ErrorMessage));
           }
 
+          let base64LabelImage = lr.Base64LabelImage;
+
+          if (isInternational) {
+            base64LabelImage = lr.Label.Image
+              .sort((a, b) => {
+                if (a.$ && b.$ && a.$.PartNumber > b.$.PartNumber) {
+                  return 1;
+                } else if (a.$ && b.$ && a.$.PartNumber < b.$.PartNumber) {
+                  return -1;
+                }
+                return 0;
+              })
+              .reduce((a, c) => {
+                a += c._;
+                return a;
+            }, '');
+          }
+
           return resolve({
-            base64LabelImage: isInternational ? lr.Label.Image._ : lr.Base64LabelImage,
+            base64LabelImage,
             trackingNumber: lr.TrackingNumber,
             postageAmount: lr.FinalPostage,
           });
